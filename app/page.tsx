@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import "dotenv/config";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -44,14 +45,14 @@ const HomePage = () => {
               Services
             </a>
             <a
-              href="/clinical-trial"
+              href="/#"
               className="text-gray-700 hover:text-indigo-600 transition-colors"
               target="_blank"
             >
               Clinical Trials
             </a>
             <a
-              href="/focus-groups"
+              href="/#"
               className="text-gray-700 hover:text-indigo-600 transition-colors"
             >
               Focus Groups
@@ -64,7 +65,7 @@ const HomePage = () => {
             </a>
           </div>
           <button
-            onClick={() => router.push("/join")}
+            onClick={() => router.push("/#")}
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md"
           >
             Join A Focus Group

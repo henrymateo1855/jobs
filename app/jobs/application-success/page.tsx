@@ -95,14 +95,14 @@ const ApplicationSuccess = () => {
                   href="mailto:recruiting@apexfocusgroup.com"
                   className="text-blue-600 hover:underline"
                 >
-                  recruiting@apexfocusgroup.com
+                  hr@apexfocusgroup.com
                 </a>{" "}
                 or call{" "}
                 <a
                   href="tel:+15551234567"
                   className="text-blue-600 hover:underline"
                 >
-                  (555) 123-4567
+                  (447) 437-0365
                 </a>
               </p>
             </div>
@@ -131,11 +131,11 @@ const ApplicationSuccess = () => {
               services
             </p>
             <p className="mt-2">
-              <Link href="/privacy" className="text-blue-600 hover:underline">
+              <Link href="/#" className="text-blue-600 hover:underline">
                 Privacy Policy
               </Link>{" "}
               •{" "}
-              <Link href="/terms" className="text-blue-600 hover:underline">
+              <Link href="/#" className="text-blue-600 hover:underline">
                 Terms of Service
               </Link>
             </p>

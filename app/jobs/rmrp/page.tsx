@@ -143,6 +143,8 @@ export default function Home() {
       }
     }
 
+    if (!form.availability) e.availability = "Please enter availability.";
+    if (!form.resumeFile) e.resumeFile = "Please upload your resume.";
     if (!form.device) e.device = "Please select the device you will use.";
     if (!form.internet)
       e.internet = "Please select your internet connection quality.";
@@ -191,7 +193,7 @@ export default function Home() {
       if (resp.ok) {
         setMessage("Application submitted successfully — thank you!");
         setForm(initialFormState);
-        router.push("/application-success");
+        router.push("/job/application-success");
         setErrors({});
       } else {
         setMessage(data?.error || "Submission failed");
@@ -352,6 +354,9 @@ export default function Home() {
                   min="1"
                   max="168"
                 />
+                {errors.availability && (
+                  <p className="text-red-600 text-sm">{errors.availability}</p>
+                )}
                 <p className="text-xs text-gray-500 mt-1">
                   Enter number of hours per week (1-168)
                 </p>
@@ -429,8 +434,11 @@ export default function Home() {
                 }}
                 className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
+              {errors.resumeFile && (
+                <p className="text-red-600 text-sm">{errors.resumeFile}</p>
+              )}
               <p className="text-xs text-gray-500 mt-1">
-                We accept PDF/DOC files up to 5MB.
+                We accept PDF/DOC files up to 3MB.
               </p>
             </div>
 
