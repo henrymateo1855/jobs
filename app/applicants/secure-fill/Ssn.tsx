@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { ChangeEvent, FC } from "react";
 import { useSecureFill, UseSecureFillReturn } from "./useSecureFill";
 
 interface ssnProps
@@ -7,7 +7,7 @@ interface ssnProps
     "form" | "setForm" | "errors" | "setErrors"
   > {}
 
-const Ssn: FC<ssnProps> = ({ form, setForm, errors }) => {
+const Ssn: FC<ssnProps> = ({ form, setForm, errors, setErrors }) => {
   return (
     <div className="w-1/2">
       <label className="block text-sm font-medium ">

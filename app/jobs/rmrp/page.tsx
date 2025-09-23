@@ -189,14 +189,22 @@ export default function Home() {
         body: formData,
       });
 
-      const data = await resp.json();
+      const data = await resp.json().catch(() => ({})); // avoid crash on empty body
+
       if (resp.ok) {
         setMessage("Application submitted successfully — thank you!");
-        setForm(initialFormState);
-        router.push("/job/application-success");
+        // setForm(initialFormState);
+        // router.push("/jobs/rmrp/application-success");
         setErrors({});
+      } else if (resp.status === 409) {
+        // Duplicate email (from backend’s err.code === "23505")
+        setErrors((prev) => ({
+          ...prev,
+          email: data.error || "Email already used",
+        }));
+        setMessage(data.error || "This email has already been used to apply.");
       } else {
-        setMessage(data?.error || "Submission failed");
+        setMessage(data.error || data.message || "Submission failed");
       }
     } catch (err: any) {
       setMessage(err?.message || "Unexpected error");

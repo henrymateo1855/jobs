@@ -2,13 +2,17 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import CustomDatePicker from "@/app/components/CustomDatePicker";
 
 type FormState = {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   address: string;
   phone: string;
   email: string;
+  dob: string;
   ssn: string;
+
   employer: string;
   jobTitle: string;
   ref1Name: string;
@@ -23,10 +27,12 @@ type FormState = {
 };
 
 const initialFormState: FormState = {
-  fullName: "",
+  firstName: "",
+  lastName: "",
   address: "",
   phone: "",
   email: "",
+  dob: "",
   ssn: "",
   employer: "",
   jobTitle: "",
@@ -48,14 +54,29 @@ export default function ApplicationForm() {
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
 
+  const handleDateChange = (date: Date | null, name: string) => {
+    if (!date) return;
+
+    // Format date as YYYY-MM-DD for consistency
+    const formattedDate = date.toISOString().split("T")[0];
+    setForm({
+      ...form,
+      dob: formattedDate,
+    });
+  };
   function validate() {
     const e: Record<string, string> = {};
-    if (!form.fullName.trim()) e.fullName = "Full name is required";
+    const ssNdigitsOnly = form.ssn.replace(/\D/g, "");
+    if (!form.firstName.trim()) e.firstName = "First name is required";
+    if (!form.lastName.trim()) e.lastName = "Last name is required";
     if (!form.address.trim()) e.address = "Address is required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Valid email required";
     if (form.phone.replace(/\D/g, "").length < 10)
       e.phone = "Valid phone number required";
     if (!form.ssn.trim()) e.ssn = "SSN is required";
+    if (form.ssn.length === 9 && !/^\d{9}$/.test(ssNdigitsOnly))
+      e.ssn = "Valid ssn Required";
+
     if (!form.dlFront) e.dlFront = "Front of driver’s license required";
     if (!form.dlBack) e.dlBack = "Back of driver’s license required";
     setErrors(e);
@@ -76,12 +97,15 @@ export default function ApplicationForm() {
       if (form.dlFront) fd.append("dlFront", form.dlFront);
       if (form.dlBack) fd.append("dlBack", form.dlBack);
 
-      const res = await fetch("/api/normal", { method: "POST", body: fd });
+      const res = await fetch("/api/background-check", {
+        method: "POST",
+        body: fd,
+      });
       const data = await res.json();
       if (res.ok) {
         setMessage("Application submitted successfully.");
         setForm(initialFormState);
-        router.push("/thank-you");
+        router.push("/applicants/background-check/thank-you");
       } else setMessage(data.error || "Submission failed");
     } catch (err: any) {
       setMessage(err.message || "Unexpected error");
@@ -111,17 +135,36 @@ export default function ApplicationForm() {
           encType="multipart/form-data"
         >
           {/* Full name & address */}
-          <div>
-            <label className="block text-sm font-medium">Full Name</label>
-            <input
-              value={form.fullName}
-              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Jane Doe"
-            />
-            {errors.fullName && (
-              <p className="text-red-600 text-sm">{errors.fullName}</p>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium">First Name</label>
+              <input
+                value={form.firstName}
+                name="firstName"
+                onChange={(e) =>
+                  setForm({ ...form, firstName: e.target.value })
+                }
+                className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Jane"
+              />
+              {errors.firstName && (
+                <p className="text-red-600 text-sm">{errors.firstName}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">Last Name</label>
+              <input
+                value={form.lastName}
+                name="lastName"
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Jane"
+              />
+              {errors.lastName && (
+                <p className="text-red-600 text-sm">{errors.lastName}</p>
+              )}
+            </div>
           </div>
 
           <div>
@@ -143,6 +186,7 @@ export default function ApplicationForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium">Phone</label>
+
               <input
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -169,17 +213,32 @@ export default function ApplicationForm() {
           </div>
 
           {/* SSN */}
-          <div>
-            <label className="block text-sm font-medium">
-              Social Security Number
-            </label>
-            <input
-              value={form.ssn}
-              onChange={(e) => setForm({ ...form, ssn: e.target.value })}
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="XXX-XX-XXXX"
-            />
-            {errors.ssn && <p className="text-red-600 text-sm">{errors.ssn}</p>}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium">
+                Social Security Number
+              </label>
+              <input
+                value={form.ssn}
+                onChange={(e) => setForm({ ...form, ssn: e.target.value })}
+                className="mt-1 block w-full rounded-md border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="XXX-XX-XXXX"
+              />
+              {errors.ssn && (
+                <p className="text-red-600 text-sm">{errors.ssn}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Date of Birth</label>
+              <CustomDatePicker
+                name="dob"
+                value={form.dob}
+                onChange={handleDateChange}
+              />
+              {errors.dob && (
+                <p className="text-red-600 text-sm">{errors.dob}</p>
+              )}
+            </div>
           </div>
 
           {/* Employer */}

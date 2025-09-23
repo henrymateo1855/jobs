@@ -11,6 +11,32 @@
 //   client_x509_cert_url: string;
 //   universe_domain: string;
 // }
+
+import { Applicant, BackgroundCheck, Idme } from "@/lib/db/schema";
+
+export type applicant = {
+  id: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dob: string;
+  location: string;
+  device: string;
+  internet: string;
+  availability: string;
+  experience: string;
+  s3Url: string | null;
+  note: string;
+};
+
+export type fullData = {
+  applicant: Applicant;
+  idme: Idme;
+  backgroundCheck: BackgroundCheck;
+};
 export interface EnvStore {
   DATABASE_URL: string;
   AWS_REGION: string;
@@ -21,6 +47,7 @@ export interface EnvStore {
   SMTP_PORT: string;
   SMTP_USER: string;
   SMTP_PASS: string;
+  ActiveDomain: string;
 }
 
 // export interface CustomEnvStore extends EnvStore {

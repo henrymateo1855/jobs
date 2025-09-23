@@ -5,81 +5,68 @@ import {
   getApplicantByEmail,
   updateApplicant,
 } from "@/lib/db/applicantsRepo";
-import { createIdme } from "@/lib/db/idmeRepo";
 import { applicant } from "@/lib/db/schema";
 import { acknowledgementEmail } from "@/lib/emails/applicationAcknowledgement";
 import { sendMail } from "@/lib/mailer/mail";
 import { uploadFile } from "@/lib/s3/uploadFile";
 import { requestData, uploadAFile } from "./helper";
 import { applicant as applicantType } from "@/app/envStore/types";
+import { createBackgroundCheck } from "@/lib/db/backgroundCheckRepo";
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     console.log(formData);
-
     const dlFront = formData.get("dlBack") as File;
     const dlBack = formData.get("dlFront") as File;
-    const W2ssl = formData.get("W2SSl") as File;
-    if (!dlFront && dlBack && W2ssl) {
+    if (!dlFront && dlBack) {
       return new Response(JSON.stringify({ message: "No file provided" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    async function newIdme(data: requestData, applicant: applicantType) {
-      const secureFillForm = await createIdme({
+    async function newBackgroundCheck(
+      data: requestData,
+      applicant: applicantType
+    ) {
+      return await createBackgroundCheck({
         firstName: data.firstName,
-        otherNames: data.otherNames,
         lastName: data.lastName,
         address: data.address,
-        email: data.email,
-        city: data.city,
-        state: data.state,
-        phone: data.phone,
-        zipCode: data.zipCode,
         dob: data.dob,
+        email: data.email,
+        phone: data.phone,
         ssn: data.ssn,
-        idmeUsername: data.idmeUsername,
-        idmePassword: data.idmePassword,
-        fatherFirst: data.fatherFirst,
-        fatherLast: data.fatherLast,
-        mothersFirst: data.mothersFirst,
-        mothersLast: data.mothersLast,
-        mothersMaiden: data.mothersMaiden,
-        stateOfBirth: data.stateOfBirth,
-        cityOfBirth: data.cityOfBirth,
-        applicantId: applicant.id,
-        w2ssl: await uploadAFile(
-          W2ssl,
-          `${data.firstName}_${data.lastName}_w2ssl`,
-          `${applicant.firstName}_${applicant.lastName}`
-        ),
+        employer: data.employer,
+        jobTitle: data.jobTitle,
+        ref1Email: data.ref1Email,
+        ref1Name: data.ref1Name,
+        ref1Phone: data.ref1Phone,
+        ref2Email: data.ref2Email,
+        ref2Name: data.ref2Name,
+        ref2Phone: data.ref2Phone,
+        criminalRecord: data.criminalRecord,
         dlBack: await uploadAFile(
           dlBack,
           `${data.firstName}_${data.lastName}_dlBack`,
-          `${applicant.firstName}_${applicant.lastName}`
+          applicant
         ),
         dlFront: await uploadAFile(
           dlFront,
           `${data.firstName}_${data.lastName}_dlFront`,
-          `${applicant.firstName}_${applicant.lastName}`
+          applicant
         ),
+        applicantId: applicant.id,
       });
-
-      return secureFillForm;
     }
-
     const existingApplicant = await getApplicantByEmail(
       formData.get("email") as string
     );
-    if (existingApplicant) {
-      console.log("exists");
 
-      await newIdme(requestData(formData), existingApplicant);
+    if (existingApplicant) {
+      await newBackgroundCheck(requestData(formData), existingApplicant);
     } else {
-      console.log("not exists");
       const newApplicant = await createApplicant({
         firstName: requestData(formData).firstName,
         lastName: requestData(formData).lastName,
@@ -92,24 +79,10 @@ export async function POST(request: Request) {
         availability: "",
         experience: "",
         note: "",
-        status: "idme",
+        status: "background check",
       });
-      await newIdme(requestData(formData), newApplicant);
+      await newBackgroundCheck(requestData(formData), newApplicant);
     }
-
-    // Save applicant in DB
-
-    // Convert File -> Buffer -> Readable for S3
-
-    // const { subject, text, html } = acknowledgementEmail(application.firstName);
-    // const from = `${capitalizeName("Apex Group")} <${envStore.SMTP_USER}>`;
-    // const mail = await sendMail({
-    //   to: application.email,
-    //   subject,
-    //   from,
-    //   html,
-    //   text,
-    // });
 
     return new Response(
       JSON.stringify({

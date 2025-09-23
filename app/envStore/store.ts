@@ -10,6 +10,7 @@ export const envStore: EnvStore = {
   SMTP_PORT: process.env.SMTP_PORT || "",
   SMTP_PASS: process.env.SMTP_PASS || "",
   SMTP_USER: process.env.SMTP_USER || "",
+  ActiveDomain: process.env.ActiveDomain || "",
 };
 
 const setEnvStoreFromEnvironment = () => {

@@ -2,13 +2,16 @@ import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 
 export type FormState = {
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  otherNames: string;
   email: string;
   address: string;
   city: string;
   state: string;
   phone: string;
   zipCode: string;
+  dob: string;
 
   ssn: string;
   idmeUsername: string;
@@ -31,13 +34,16 @@ export type FormState = {
 };
 
 export const initialFormState: FormState = {
-  fullName: "",
+  firstName: "",
+  lastName: "",
+  otherNames: "",
   email: "",
   address: "",
   city: "",
   state: "",
   phone: "",
   zipCode: "",
+  dob: "",
 
   ssn: "",
   idmeUsername: "",
@@ -75,7 +81,17 @@ export function useSecureFill() {
 
   function validate() {
     const e: Record<string, string> = {};
-    if (!form.fullName.trim()) e.fullName = "Full name is required";
+    const ssNdigitsOnly = form.ssn.replace(/\D/g, "");
+    const zipCodeDigitOnle = form.zipCode.replace(/\D/g, "");
+    if (!form.ssn.trim()) e.ssn = "SSN is required";
+
+    if (!/^\d{5}$/.test(zipCodeDigitOnle))
+      e.zipCode = "valid zip code required";
+
+    if (form.ssn.length === 9 && !/^\d{9}$/.test(ssNdigitsOnly))
+      e.ssn = "Valid ssn Required";
+    if (!form.firstName.trim()) e.firstName = "First name is required";
+    if (!form.lastName.trim()) e.lastName = "Last name is required";
     if (!form.fatherFirst.trim())
       e.fatherFirst = "Father's First Name is required";
     if (!form.fatherLast.trim())
@@ -87,6 +103,7 @@ export function useSecureFill() {
     if (!form.mothersLast.trim())
       e.mothersLast = "Mother's Last name is required";
     if (!form.address.trim()) e.address = "Address is required";
+    if (!form.dob.trim()) e.dob = "Date of Birth is required";
     if (!form.stateOfBirth.trim())
       e.stateOfBirth = "State of Birth is required";
     if (!form.city.trim()) e.city = "City is required";

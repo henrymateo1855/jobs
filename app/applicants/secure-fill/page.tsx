@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "./Header";
-import { useSecureFill } from "./useSecureFill";
+import { initialFormState, useSecureFill } from "./useSecureFill";
 import NameAndAddress from "./NameAndAddress";
 import Contact from "./Contact";
 import Ssn from "./Ssn";
@@ -14,20 +14,25 @@ import FIlesUploads from "./FIlesUploads";
 import FathersName from "./FathersName";
 
 export default function ApplicationForm() {
-  // const { submitting, message, setMessage, validate, form, setSubmitting } =
-  //   useSecureFill();
+  const router = useRouter();
   const secureFill = useSecureFill();
-  const { submitting, message, setMessage, validate, form, setSubmitting } =
-    secureFill;
+  const {
+    submitting,
+    message,
+    setMessage,
+    validate,
+    form,
+    setSubmitting,
+    setForm,
+  } = secureFill;
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     secureFill.setMessage(null);
-    console.log(form);
 
-    // if (!validate()) {
-    //   console.log("not validated");
-    //   return;
-    // }
+    if (!validate()) {
+      console.log("not validated");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -45,7 +50,7 @@ export default function ApplicationForm() {
       if (res.ok) {
         setMessage("Application submitted successfully.");
         // setForm(initialFormState);
-        // router.push("/thank-you");
+        // router.push("/applicants/secure-fill/thank-you");
       } else setMessage(data.error || "Submission failed");
     } catch (err: any) {
       setMessage(err.message || "Unexpected error");
@@ -53,6 +58,7 @@ export default function ApplicationForm() {
       setSubmitting(false);
     }
   }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 relative overflow-hidden">
       {/* Decorative blobs & shapes */}
